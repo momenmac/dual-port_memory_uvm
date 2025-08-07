@@ -24,7 +24,7 @@ class memory_transaction extends uvm_sequence_item;
     
     virtual function string convert2string();
         return $sformatf("addr=0x%0h, data=0x%0h, op=%0b, delay=%0d, is_start=%0b", 
-                        addr, data, op, delay, is_start);
+                        addr, data, op? "WRITE" : "READ", delay, is_start);
     endfunction : convert2string
     
 endclass : memory_transaction

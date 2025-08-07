@@ -6,7 +6,7 @@ class memory_driver extends uvm_driver #(memory_transaction);
         super.new(name, parent);
     endfunction : new
 
-    virtual function void build_phase(uvm_phase phase)
+    virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         if (!uvm_config_db#(virtual memory_interface)::get(this,"", "mem_if_inst", mem_if_inst)) begin
             `uvm_fatal("MEM_IF", "Memory interface not found")
@@ -39,6 +39,7 @@ class memory_driver extends uvm_driver #(memory_transaction);
                 end
             join_any
             disable delay_fork;
+            sequence_item_port.item_done(mem_tr);
         end
 
 
