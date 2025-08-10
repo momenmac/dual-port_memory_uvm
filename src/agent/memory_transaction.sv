@@ -9,6 +9,10 @@ class memory_transaction extends uvm_sequence_item;
     constraint addr_c {
         soft addr inside {[`MIN_ADDR:`MAX_ADDR]};
     }
+
+    constraint delay_c {
+        soft delay inside {[1:7]};
+    }
     
     `uvm_object_utils_begin(memory_transaction)
         `uvm_field_int(addr,     UVM_DEFAULT)
@@ -23,7 +27,7 @@ class memory_transaction extends uvm_sequence_item;
     endfunction : new
     
     virtual function string convert2string();
-        return $sformatf("addr=0x%0h, data=0x%0h, op=%0b, delay=%0d, is_start=%0b", 
+      return $sformatf("\taddr=0x%4h,\tdata=0x%8h,\top=%s,\tdelay=%0d,\tis_start=%0b", 
                         addr, data, op? "WRITE" : "READ", delay, is_start);
     endfunction : convert2string
     

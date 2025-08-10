@@ -14,21 +14,24 @@ class memory_driver extends uvm_driver #(memory_transaction);
     endfunction : build_phase
 
     virtual task run_phase(uvm_phase phase);
+        super.run_phase(phase);
         forever begin
             memory_transaction mem_tr;
-            sequence_item_port.get_next_item(mem_tr);
+            seq_item_port.get_next_item(mem_tr);
             mem_if_inst.addr <= mem_tr.addr;
             mem_if_inst.wr_data <= mem_tr.data;
             mem_if_inst.op <= mem_tr.op;
             mem_if_inst.valid <= 1;
             `uvm_info("MEMORY_DRIVER", mem_tr.convert2string(), UVM_HIGH);
             @(posedge mem_if_inst.clk iff mem_if_inst.ready);
+            `uvm_info("MEMORY_DRIVER", "Transaction sent", UVM_DEBUG);
 
             fork : delay_fork
                 begin
                     repeat (mem_tr.delay) begin
                         mem_if_inst.valid <= 0;
                         @(posedge mem_if_inst.clk);
+                        `uvm_info("MEMORY_DRIVER", $sformatf("Delay: %0d cycles", mem_tr.delay), UVM_DEBUG);
                     end
                 end
 
@@ -39,7 +42,8 @@ class memory_driver extends uvm_driver #(memory_transaction);
                 end
             join_any
             disable delay_fork;
-            sequence_item_port.item_done(mem_tr);
+            `uvm_info("MEMORY_DRIVER", "Transaction completed", UVM_DEBUG)
+            seq_item_port.item_done();
         end
 
 

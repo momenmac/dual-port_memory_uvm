@@ -17,19 +17,23 @@ class memory_monitor extends uvm_monitor;
     endfunction : build_phase
 
     virtual task run_phase(uvm_phase phase);
+        super.run_phase(phase);
         forever begin
             memory_transaction mem_tr_start;
             memory_transaction mem_tr_end;
+            `uvm_info("MEM_MONITOR", "Waiting for memory transaction", UVM_DEBUG);
             mem_tr_start = memory_transaction::type_id::create("mem_tr_start");
             mem_tr_end = memory_transaction::type_id::create("mem_tr_end");
 
             @(posedge mem_if_inst.clk iff mem_if_inst.valid);
+            `uvm_info("MEM_MONITOR", "Memory transaction detected", UVM_DEBUG);
             mem_tr_start.addr = mem_if_inst.addr;
             mem_tr_start.data = mem_if_inst.wr_data;
             mem_tr_start.op = mem_if_inst.op;
             mem_tr_start.is_start = 1;
 
-            `uvm_info("MEMORY_MONITOR", mem_tr_start.convert2string(), UVM_HIGH);
+            `uvm_info("MEM_MONITOR", mem_tr_start.convert2string(), UVM_HIGH);
+            analysis_port.write(mem_tr_start);
 
             if(mem_if_inst.ready) begin
                 mem_tr_end.op = mem_if_inst.op;
@@ -41,7 +45,7 @@ class memory_monitor extends uvm_monitor;
                 else 
                     mem_tr_end.data = mem_if_inst.rd_data;
 
-                `uvm_info("MEMORY_MONITOR", mem_tr_end.convert2string(), UVM_HIGH);
+                `uvm_info("MEM_MONITOR", mem_tr_end.convert2string(), UVM_HIGH);
                 analysis_port.write(mem_tr_end);
             end
             else begin
@@ -54,8 +58,9 @@ class memory_monitor extends uvm_monitor;
                     mem_tr_end.data = mem_if_inst.wr_data;
                 else 
                     mem_tr_end.data = mem_if_inst.rd_data;
+
+                `uvm_info("MEM_MONITOR", mem_tr_end.convert2string(), UVM_HIGH);
                 analysis_port.write(mem_tr_end);
-                `uvm_info("MEMORY_MONITOR", mem_tr_end.convert2string(), UVM_HIGH);
             end
         end
     endtask : run_phase

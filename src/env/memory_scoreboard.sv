@@ -17,11 +17,11 @@ class memory_scoreboard extends uvm_scoreboard;
     endfunction : build_phase
 
     virtual function write_a(memory_transaction mem_tr_inst);
-        `uvm_info("memory_scoreboard", "Received transaction on mem_analysis_imp_a", UVM_MEDIUM)
+        `uvm_info("SCOREBOARD_A", mem_tr_inst.convert2string(), UVM_MEDIUM)
     endfunction : write_a
 
     virtual function write_b(memory_transaction mem_tr_inst);
-        `uvm_info("memory_scoreboard", "Received transaction on mem_analysis_imp_b", UVM_MEDIUM)
+        `uvm_info("SCOREBOARD_B", mem_tr_inst.convert2string(), UVM_MEDIUM)
     endfunction : write_b
 
 endclass : memory_scoreboard

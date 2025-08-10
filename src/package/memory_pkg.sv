@@ -25,6 +25,7 @@ package memory_pkg;
     `include "memory_scoreboard.sv"
     `include "memory_subscriber.sv"
     `include "memory_coverage.sv"
+    `include "memory_virtual_sequencer.sv"
     `include "memory_env.sv"
     
     // Include RAL components
@@ -34,6 +35,7 @@ package memory_pkg;
     
     // Include sequences
     `include "memory_base_sequence.sv"
+    `include "memory_virtual_sequence.sv"
     `include "memory_write_sequence.sv"
     `include "memory_read_sequence.sv"
     `include "memory_random_sequence.sv"

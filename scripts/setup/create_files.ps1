@@ -26,6 +26,7 @@ $files = @{
     "src\env\memory_scoreboard.sv" = ""
     "src\env\memory_subscriber.sv" = ""
     "src\env\memory_env.sv" = ""
+    "src\env\memory_virtual_sequencer.sv" = ""
     
     # RAL (Register Abstraction Layer)
     "src\ral\memory_ral_model.sv" = ""
@@ -37,6 +38,7 @@ $files = @{
     "src\sequence_lib\memory_write_sequence.sv" = ""
     "src\sequence_lib\memory_read_sequence.sv" = ""
     "src\sequence_lib\memory_random_sequence.sv" = ""
+    "src\sequence_lib\memory_virtual_sequence.sv" = ""
     
     # Tests
     "src\test_lib\memory_base_test.sv" = ""
