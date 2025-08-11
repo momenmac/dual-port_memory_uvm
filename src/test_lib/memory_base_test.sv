@@ -30,9 +30,12 @@ class base_test extends uvm_test;
             `uvm_fatal("MEM_IF_B", "Memory Interface B not found")
         uvm_config_db#(virtual memory_interface)::set(this, "mem_env_inst.mem_agent_b.*", "mem_if_inst", mem_if_b);
 
+        uvm_config_db#(virtual memory_interface)::set(this, "*sequencer*", "mem_if_inst", mem_if_a);
+        uvm_config_db#(virtual memory_interface)::set(this, "*virtual_sequencer*", "mem_if_inst", mem_if_a);
+
         clp = uvm_cmdline_processor::get_inst();
         if (clp.get_arg_value("+NUM_TXN=", command_line_txn)) begin
-            if ($sscanf(command_line_txn, "%d", num_txn_temp) == 1)
+            if ($sscanf(command_line_txn, "%d", num_txn_temp))
                 num_txn = num_txn_temp;
         end
 
@@ -53,7 +56,6 @@ class base_test extends uvm_test;
         repeat ($urandom_range(0, 15)) @(posedge mem_if_a.clk);
         `uvm_info("BASE_TEST", "Reset completed", UVM_HIGH);
         phase.drop_objection(this);
-
     endtask : reset_phase
 
     virtual task main_phase(uvm_phase phase);

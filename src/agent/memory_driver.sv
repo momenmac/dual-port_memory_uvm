@@ -25,27 +25,9 @@ class memory_driver extends uvm_driver #(memory_transaction);
             `uvm_info("MEMORY_DRIVER", mem_tr.convert2string(), UVM_HIGH);
             @(posedge mem_if_inst.clk iff mem_if_inst.ready);
             `uvm_info("MEMORY_DRIVER", "Transaction sent", UVM_DEBUG);
-
-            fork : delay_fork
-                begin
-                    repeat (mem_tr.delay) begin
-                        mem_if_inst.valid <= 0;
-                        @(posedge mem_if_inst.clk);
-                        `uvm_info("MEMORY_DRIVER", $sformatf("Delay: %0d cycles", mem_tr.delay), UVM_DEBUG);
-                    end
-                end
-
-                begin
-                    @(negedge mem_if_inst.rstn);
-                    mem_if_inst.valid <= 0;
-                    `uvm_info("MEMORY_DRIVER", "RESET completed", UVM_HIGH);
-                end
-            join_any
-            disable delay_fork;
-            `uvm_info("MEMORY_DRIVER", "Transaction completed", UVM_DEBUG)
-            seq_item_port.item_done();
+    
+            mem_if_inst.valid <= 0;
+            seq_item_port.item_done(mem_tr);
         end
-
-
     endtask : run_phase
 endclass : memory_driver
