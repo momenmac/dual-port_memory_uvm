@@ -22,11 +22,13 @@ class memory_driver extends uvm_driver #(memory_transaction);
             mem_if_inst.wr_data <= mem_tr.data;
             mem_if_inst.op <= mem_tr.op;
             mem_if_inst.valid <= 1;
+            
             `uvm_info("MEMORY_DRIVER", mem_tr.convert2string(), UVM_HIGH);
             @(posedge mem_if_inst.clk iff mem_if_inst.ready);
             `uvm_info("MEMORY_DRIVER", "Transaction sent", UVM_DEBUG);
     
             mem_if_inst.valid <= 0;
+            mem_tr.data = mem_tr.op ? mem_if_inst.wr_data : mem_if_inst.rd_data;
             seq_item_port.item_done(mem_tr);
         end
     endtask : run_phase

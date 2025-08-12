@@ -62,6 +62,7 @@ class base_test extends uvm_test;
         super.main_phase(phase);
         phase.raise_objection(this);
         `uvm_info("base_test", "Starting memory base sequence", UVM_MEDIUM);
+        mem_vseq_inst.ral_model = mem_env_inst.reg_env_inst.ral_model;
         mem_vseq_inst.start(mem_env_inst.mem_virtual_sequencer_inst);
         #200;
         phase.drop_objection(this);

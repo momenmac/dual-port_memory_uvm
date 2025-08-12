@@ -21,6 +21,10 @@
 `define READ_OP         1'b0
 `define WRITE_OP        1'b1
 
+// Transaction Control
+`define TRANSACTION_START 1'b1
+`define TRANSACTION_END   1'b0
+
 // Address Ranges
 `define MIN_ADDR        0
 `define MAX_ADDR        (`MEMORY_DEPTH - 1)

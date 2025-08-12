@@ -4,6 +4,7 @@ class memory_monitor extends uvm_monitor;
     virtual memory_interface mem_if_inst;
     uvm_analysis_port #(memory_transaction) analysis_port;
 
+
     function new(string name = "memory_monitor", uvm_component parent = null);
         super.new(name, parent);
         analysis_port = new("analysis_port", this);

@@ -4,7 +4,11 @@ class memory_model extends uvm_mem;
     
     function new(string name = "memory_model");
         super.new(name, `MEMORY_DEPTH, `DATA_WIDTH, "RW", UVM_NO_COVERAGE);
-    endfunction
+    endfunction : new
+
+    virtual function void build();
+        add_hdl_path_slice("mem_inst.mem", `MIN_ADDR, `DATA_WIDTH);
+    endfunction : build
 endclass
 
 class memory_ral_model extends uvm_reg_block;
@@ -20,6 +24,7 @@ class memory_ral_model extends uvm_reg_block;
     
     virtual function void build();
         mem = memory_model::type_id::create("mem");
+        mem.build();
         mem.configure(this); 
 
         map_a = create_map("map_a", 0, 4, UVM_LITTLE_ENDIAN, 0);
@@ -27,9 +32,9 @@ class memory_ral_model extends uvm_reg_block;
         
         map_a.add_mem(mem, 0, "RW");
         map_b.add_mem(mem, 0, "RW");
-        
-    endfunction    
-    
+        add_hdl_path("top_tb.DP_MEMORY_INST", "RTL");
+    endfunction
+
     function memory_model get_memory();
         return mem;
     endfunction

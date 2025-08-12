@@ -35,12 +35,14 @@ package memory_pkg;
     // Include sequences
     `include "memory_base_sequence.sv"
     `include "memory_virtual_sequence.sv"
+    `include "memory_ral_sequence.sv"
 //     `include "memory_write_sequence.sv"
 //     `include "memory_read_sequence.sv"
 //     `include "memory_random_sequence.sv"
     
     // Include tests
     `include "memory_base_test.sv"
+    `include "memory_ral_test.sv"
 //     `include "memory_basic_test.sv"
 //     `include "memory_random_test.sv"
     

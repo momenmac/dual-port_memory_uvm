@@ -9,7 +9,7 @@ class memory_reg_adapter extends uvm_reg_adapter;
     
     virtual function uvm_sequence_item reg2bus(const ref uvm_reg_bus_op rw);
         memory_transaction mem_tr;
-        
+
         mem_tr = memory_transaction::type_id::create("mem_tr");
         assert (mem_tr.randomize()) else 
             `uvm_fatal("REG_ADAPTER", "Failed to randomize memory_transaction")
