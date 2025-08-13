@@ -4,8 +4,9 @@ class memory_virtual_sequence extends uvm_sequence #(memory_transaction);
 
     memory_base_sequence mem_sequence_a;
     memory_base_sequence mem_sequence_b;
-
-    memory_ral_model ral_model;
+  
+  	memory_ral_model ral_model;
+  
 
     rand int num;
 
@@ -17,11 +18,13 @@ class memory_virtual_sequence extends uvm_sequence #(memory_transaction);
         super.new(name);
     endfunction : new
 
-    virtual task pre_body();
-        mem_sequence_a = memory_base_sequence::type_id::create("mem_sequence_a");
+    virtual task pre_start();
+        mem_sequence_a = memory_base_sequence::type_id::create("mem_sequence_a");   
         mem_sequence_b = memory_base_sequence::type_id::create("mem_sequence_b");
-        mem_sequence_a.ral_model = ral_model;
-        mem_sequence_b.ral_model = ral_model;
+    endtask : pre_start
+
+
+    virtual task pre_body();
         mem_sequence_a.map = ral_model.get_map_a();
         mem_sequence_b.map = ral_model.get_map_b();
     endtask : pre_body
@@ -37,8 +40,7 @@ class memory_virtual_sequence extends uvm_sequence #(memory_transaction);
                   mem_sequence_b.start(p_sequencer.mem_sequencer_b);
             end
         join
- 
-                  
+        
     endtask : body
 
 endclass : memory_virtual_sequence

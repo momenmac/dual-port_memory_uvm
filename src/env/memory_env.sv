@@ -24,9 +24,13 @@ class memory_env extends uvm_env;
         mem_scoreboard_inst = memory_scoreboard::type_id::create("mem_scoreboard_inst", this);
 
         mem_virtual_sequencer_inst = memory_virtual_sequencer::type_id::create("mem_virtual_sequencer_inst", this);
+        
+        uvm_config_db#(memory_virtual_sequencer)::set(this, "*sequencer*", "virtual_sequencer", mem_virtual_sequencer_inst);
+        
     endfunction : build_phase
 
     virtual function void connect_phase(uvm_phase phase);
+        bit enable_put_port = 0;
         super.connect_phase(phase);
         
         mem_agent_a.monitor_inst.analysis_port.connect(mem_scoreboard_inst.mem_analysis_imp_a);
@@ -42,6 +46,8 @@ class memory_env extends uvm_env;
         mem_agent_b.monitor_inst.analysis_port.connect(reg_env_inst.reg_predictor_b.bus_in);
 
         mem_scoreboard_inst.ral_model = reg_env_inst.ral_model;
+        mem_virtual_sequencer_inst.scoreboard_put_port.connect(mem_scoreboard_inst.m_put_imp);
+
     endfunction : connect_phase
     
     virtual function void end_of_elaboration_phase(uvm_phase phase);

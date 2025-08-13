@@ -23,7 +23,7 @@ class reg_env extends uvm_env;
         ral_model.build();
         ral_model.lock_model();
 
-        uvm_config_db#(memory_ral_model)::set(this, "*", "ral_model", ral_model);
+        uvm_config_db#(memory_ral_model)::set(null, "*", "ral_model", ral_model);
     endfunction : build_phase
 
     virtual function void connect_phase(uvm_phase phase);

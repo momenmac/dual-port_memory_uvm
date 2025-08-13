@@ -17,10 +17,8 @@ package memory_pkg;
     `include "memory_driver.sv"
     `include "memory_monitor.sv"
     `include "memory_agent.sv"
-    `include "memory_scoreboard.sv"
 //     `include "memory_subscriber.sv"
 //     `include "memory_coverage.sv"
-    `include "memory_virtual_sequencer.sv"
 
 
     // Include RAL components
@@ -28,14 +26,16 @@ package memory_pkg;
     `include "memory_reg_adapter.sv"
     `include "memory_reg_predictor.sv"
 
+    `include "memory_virtual_sequencer.sv"
+
 	`include "reg_env.sv"
+    `include "memory_scoreboard.sv"
     `include "memory_env.sv"
 
     
     // Include sequences
     `include "memory_base_sequence.sv"
     `include "memory_virtual_sequence.sv"
-    `include "memory_ral_sequence.sv"
 //     `include "memory_write_sequence.sv"
 //     `include "memory_read_sequence.sv"
 //     `include "memory_random_sequence.sv"
