@@ -9,10 +9,17 @@ class memory_reg_adapter extends uvm_reg_adapter;
     
     virtual function uvm_sequence_item reg2bus(const ref uvm_reg_bus_op rw);
         memory_transaction mem_tr;
-
+        uvm_reg_item item = get_item();
+        cfg_info cfg_ext = cfg_info::type_id::create("cfg_ext");
         mem_tr = memory_transaction::type_id::create("mem_tr");
+
         assert (mem_tr.randomize()) else 
             `uvm_fatal("REG_ADAPTER", "Failed to randomize memory_transaction")
+
+        if(item.extension != null) begin
+            $cast(cfg_ext, item.extension);
+            mem_tr.delay = cfg_ext.transmit_delay;   
+        end
         
         mem_tr.addr = rw.addr[`ADDR_WIDTH-1:0];
         mem_tr.op = (rw.kind == UVM_WRITE) ? `WRITE_OP : `READ_OP;

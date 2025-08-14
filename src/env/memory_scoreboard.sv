@@ -20,6 +20,7 @@ class memory_scoreboard extends uvm_scoreboard;
     int index_a = 0;
     int index_b = 0;
     int collision_count = 0;
+    time collision_window = 0;
     
     memory_transaction active_start_a, active_start_b;
     bit transaction_active_a = 0, transaction_active_b = 0;
@@ -54,19 +55,15 @@ class memory_scoreboard extends uvm_scoreboard;
         `uvm_info("REF_MEMORY_PUT", $sformatf("Putting transaction: %s", mem_tr_inst.convert2string()), UVM_HIGH)
         if(mem_tr_inst.op == `WRITE_OP)
             ref_memory[mem_tr_inst.addr] = mem_tr_inst.data;
-
-        //             `uvm_info("REF_MEMORY_PUT", $sformatf("Putting transaction: %s", mem_tr_inst.convert2string()), UVM_HIGH)
-        // if(mem_tr_inst.op == `WRITE_OP)
-        //     ref_memory[mem_tr_inst.addr] = mem_tr_inst.data;
-        // else begin
-        //     if(ref_memory[mem_tr_inst.addr] !== mem_tr_inst.data) begin
-        //         `uvm_error("REF_MEMORY_PUT", $sformatf("Data mismatch at addr=0x%0h: expected %0h, got %0h",
-        //                      mem_tr_inst.addr, ref_memory[mem_tr_inst.addr], mem_tr_inst.data))
-        //     end
-        //     else begin
-        //         `uvm_info("REF_MEMORY_PUT", $sformatf("Data match at addr=0x%0h: %0h", mem_tr_inst.addr, mem_tr_inst.data), UVM_MEDIUM)
-        //     end
-        // end
+      	else begin
+            if (ref_memory[mem_tr_inst.addr] !== mem_tr_inst.data)
+                `uvm_error("DATA_MISMATCH", $sformatf("Data mismatch at addr=0x%0h: expected=0x%0h, actual=0x%0h", 
+                          mem_tr_inst.addr, ref_memory[mem_tr_inst.addr], mem_tr_inst.data))
+            else
+                `uvm_info("DATA_MATCH", $sformatf("Data match at addr=0x%0h: data=0x%0h", 
+                          mem_tr_inst.addr, mem_tr_inst.data), UVM_MEDIUM)
+        end
+      
     endtask : put
 
     virtual task monitor_reset();
@@ -86,15 +83,27 @@ class memory_scoreboard extends uvm_scoreboard;
 
     virtual function write_a(memory_transaction mem_tr_inst);
         `uvm_info("SCB_PORT_A", $sformatf("Received transaction: %s", mem_tr_inst.convert2string()), UVM_HIGH)
-        check_collision_and_process(mem_tr_inst, "PORT_A");
+        fork
+            begin
+                if (!mem_tr_inst.op && !mem_tr_inst.is_start)
+                    #collision_window;
+                check_collision_and_process(mem_tr_inst, "PORT_A");
+            end
+        join_none
     endfunction : write_a
 
     virtual function write_b(memory_transaction mem_tr_inst);
         `uvm_info("SCB_PORT_B", $sformatf("Received transaction: %s", mem_tr_inst.convert2string()), UVM_HIGH)
-        check_collision_and_process(mem_tr_inst, "PORT_B");
+        fork
+            begin
+                if (!mem_tr_inst.op && !mem_tr_inst.is_start)
+                    #collision_window;
+                check_collision_and_process(mem_tr_inst, "PORT_B");
+            end
+        join_none
     endfunction : write_b
     
-    virtual function void check_collision_and_process(memory_transaction tr, string port_name);
+    virtual task check_collision_and_process(memory_transaction tr, string port_name);
         time current_time = $time;
         
         if (port_name == "PORT_A") begin
@@ -119,7 +128,16 @@ class memory_scoreboard extends uvm_scoreboard;
                     handle_collision_resolution(tr, active_start_a, active_start_b, "PORT_A", "PORT_B");
                     collision_detected_a = 0;
                 end else begin
-                    check_normal_transaction(tr, pass_count_a, fail_count_a, index_a, "PORT_A");
+                    if (transaction_active_b && active_start_b.addr == tr.addr && active_start_b.op != tr.op && !collision_detected_b) begin
+                        collision_detected_a = 1;
+                        collision_detected_b = 1;
+                        collision_count++;
+                        `uvm_info("COLLISION", $sformatf("Late detected at addr=0x%0h: PORT_A %s vs PORT_B %s at time %0t", 
+                                 tr.addr, tr.op ? "WRITE" : "READ", active_start_b.op ? "WRITE" : "READ", current_time), UVM_LOW)
+                        handle_collision_resolution(tr, active_start_a, active_start_b, "PORT_A", "PORT_B");
+                    end else begin
+                        check_normal_transaction(tr, pass_count_a, fail_count_a, index_a, "PORT_A");
+                    end
                 end
                 transaction_active_a = 0;
             end
@@ -146,12 +164,21 @@ class memory_scoreboard extends uvm_scoreboard;
                     handle_collision_resolution(tr, active_start_b, active_start_a, "PORT_B", "PORT_A");
                     collision_detected_b = 0;
                 end else begin
-                    check_normal_transaction(tr, pass_count_b, fail_count_b, index_b, "PORT_B");
+                    if (transaction_active_a && active_start_a.addr == tr.addr && active_start_a.op != tr.op && !collision_detected_a) begin
+                        collision_detected_a = 1;
+                        collision_detected_b = 1;
+                        collision_count++;
+                        `uvm_info("COLLISION", $sformatf("Late detected at addr=0x%0h: PORT_B %s vs PORT_A %s at time %0t", 
+                                 tr.addr, tr.op ? "WRITE" : "READ", active_start_a.op ? "WRITE" : "READ", current_time), UVM_LOW)
+                        handle_collision_resolution(tr, active_start_b, active_start_a, "PORT_B", "PORT_A");
+                    end else begin
+                        check_normal_transaction(tr, pass_count_b, fail_count_b, index_b, "PORT_B");
+                    end
                 end
                 transaction_active_b = 0;
             end
         end
-    endfunction
+    endtask
     
     virtual function void handle_collision_resolution(memory_transaction end_tr, memory_transaction my_start, 
                                                     memory_transaction other_start, string my_port, string other_port);
@@ -183,37 +210,27 @@ class memory_scoreboard extends uvm_scoreboard;
             end
             
         end else if (!my_start.op && other_start.op) begin
-            bit other_port_still_active = (my_port == "PORT_A") ? transaction_active_b : transaction_active_a;
-            
-            if (other_port_still_active) begin
-                if (end_tr.data == other_start.data) begin
-                    `uvm_info("READ_BYPASS", $sformatf("%s: Read bypass successful at addr=0x%0h, data=0x%0h (from %s write)", 
-                             my_port, my_start.addr, end_tr.data, other_port), UVM_MEDIUM)
-                    
-                    if (my_port == "PORT_A") begin
-                        pass_count_a++;
-                        index_a++;
-                    end else begin
-                        pass_count_b++;
-                        index_b++;
-                    end
+            if (end_tr.data == other_start.data) begin
+                `uvm_info("READ_BYPASS", $sformatf("%s: Read bypass successful at addr=0x%0h, data=0x%0h (from %s write)", 
+                         my_port, my_start.addr, end_tr.data, other_port), UVM_MEDIUM)
+                
+                if (my_port == "PORT_A") begin
+                    pass_count_a++;
+                    index_a++;
                 end else begin
-                    `uvm_error("READ_BYPASS", $sformatf("%s: Read bypass failed at addr=0x%0h - expected=0x%0h (from %s), actual=0x%0h", 
-                              my_port, my_start.addr, other_start.data, other_port, end_tr.data))
-                    
-                    if (my_port == "PORT_A") begin
-                        fail_count_a++;
-                        index_a++;
-                    end else begin
-                        fail_count_b++;
-                        index_b++;
-                    end
+                    pass_count_b++;
+                    index_b++;
                 end
             end else begin
+                `uvm_error("READ_BYPASS", $sformatf("%s: Read bypass failed at addr=0x%0h - expected=0x%0h (from %s), actual=0x%0h", 
+                          my_port, my_start.addr, other_start.data, other_port, end_tr.data))
+                
                 if (my_port == "PORT_A") begin
-                    check_normal_transaction(end_tr, pass_count_a, fail_count_a, index_a, my_port);
+                    fail_count_a++;
+                    index_a++;
                 end else begin
-                    check_normal_transaction(end_tr, pass_count_b, fail_count_b, index_b, my_port);
+                    fail_count_b++;
+                    index_b++;
                 end
             end
         end

@@ -2,6 +2,7 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
     `uvm_object_utils(memory_base_sequence)
     
     uvm_reg_map map;
+    cfg_info cfg_ext;
 
     uvm_status_e status;
     memory_transaction tr;
@@ -11,13 +12,17 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
     memory_virtual_sequencer p_virtual_sequencer;
 
     int current_addr;
+    int current_delay;
     logic [`DATA_WIDTH-1 : 0] written_data;
     logic [`DATA_WIDTH-1 : 0]  read_data;
     bit same_address;
+    bit same_delay;
 
     function new(string name = "memory_base_sequence");
         super.new(name);
         current_addr = $urandom_range(0,`MEMORY_DEPTH-1);
+        same_address = 0;
+        same_delay = 0;
     endfunction : new
 
     virtual task pre_start();
@@ -31,6 +36,7 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
         
         if (!uvm_config_db#(memory_virtual_sequencer)::get(m_sequencer, "", "virtual_sequencer", p_virtual_sequencer)) 
             `uvm_fatal("BASE_SEQ", "Virtual sequencer not found - put port functionality disabled")
+        cfg_ext = cfg_info::type_id::create("cfg_ext");
     endtask : pre_start
 
     virtual task pre_body();
@@ -56,33 +62,43 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
 
     virtual task write_mem();
         tr.op = `WRITE_OP;
-        `uvm_info("WRITE_SEQ", tr.convert2string(), UVM_HIGH);
+        if(same_delay) begin
+            tr.delay = current_delay;
+        end
+        current_delay = tr.delay;
+        cfg_ext.transmit_delay = tr.delay;
         written_data = tr.data;
         if(same_address) 
             tr.addr = current_addr;
         current_addr = tr.addr;
-      	ral_model.mem.write(status, tr.addr, tr.data, .map(map));
+        `uvm_info("WRITE_SEQ", tr.convert2string(), UVM_HIGH);
+      	ral_model.mem.write(status, tr.addr, tr.data, .map(map), .extension(cfg_ext));
         if (status != UVM_IS_OK) 
             `uvm_error("RAL_SEQ", $sformatf("RAL write failed with status: %s", status.name()))
     endtask : write_mem
 
     virtual task read_mem();
         tr.op = `READ_OP;
-        `uvm_info("READ_SEQ", tr.convert2string(), UVM_HIGH);
+        if(same_delay)
+            tr.delay = current_delay;
+        current_delay = tr.delay;
+        cfg_ext.transmit_delay = tr.delay;
         if(same_address) 
             tr.addr = current_addr;
         current_addr = tr.addr;
-      	ral_model.mem.read(status, tr.addr, read_data, .map(map));
+        `uvm_info("READ_SEQ", tr.convert2string(), UVM_HIGH);
+      	ral_model.mem.read(status, tr.addr, read_data, .map(map), .extension(cfg_ext));
         if (status != UVM_IS_OK) 
             `uvm_error("RAL_SEQ", $sformatf("RAL read failed with status: %s", status.name()))
     endtask : read_mem
 
     virtual task poke_mem();
-        `uvm_info("POKE_SEQ", $sformatf("Poking memory at address %0h with data %0h", tr.addr, tr.data), UVM_HIGH);
+        tr.op = `WRITE_OP;
         written_data = tr.data;
         if(same_address)
             tr.addr = current_addr;
         current_addr = tr.addr;
+        `uvm_info("POKE_SEQ", $sformatf("Poking memory at address %0h with data %0h", tr.addr, tr.data), UVM_HIGH);
         ral_model.mem.poke(status, tr.addr, tr.data);
         p_virtual_sequencer.put_to_scoreboard(tr);
         if (status != UVM_IS_OK) 
@@ -90,11 +106,14 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
     endtask : poke_mem
 
     virtual task peek_mem();
-        `uvm_info("PEEK_SEQ", $sformatf("Peeking memory at address %0h", tr.addr), UVM_HIGH);
+        tr.op = `READ_OP;
         if(same_address) 
             tr.addr = current_addr;
         current_addr = tr.addr;
+        `uvm_info("PEEK_SEQ", $sformatf("Peeking memory at address %0h", tr.addr), UVM_HIGH);
         ral_model.mem.peek(status, tr.addr, read_data);
+        tr.data = read_data;
+        p_virtual_sequencer.put_to_scoreboard(tr);
         if (status != UVM_IS_OK) 
             `uvm_error("RAL_SEQ", $sformatf("RAL peek failed with status: %s", status.name()))
     endtask : peek_mem
@@ -113,3 +132,5 @@ class memory_base_sequence extends uvm_sequence #(memory_transaction);
         `uvm_info("BASE_TEST", "Reset completed", UVM_HIGH);
     endtask : reset_memory
 endclass : memory_base_sequence
+
+

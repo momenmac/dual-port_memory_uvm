@@ -1,0 +1,96 @@
+Case,Description,Name,Status,Test result,run-options,Bugs
+Port A write,"Verify basic write operation on port A
+Write random data and address
+Verify the data is written on the memory",write_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Port B write,"Verify basic write operation on port B
+Write random data and address
+Verify the data is written on the memory",write_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Port A read,"Verify basic read operation on port A
+Read data from a random address via port A
+Verify the output is same as stored data",read_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=read_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Port B read,"Verify basic read operation on port B
+Read data from a random address via port B
+Verify the output is same as stored data",read_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=read_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Port A Write Read,"Verify basic write and read operations on port A
+Write random data and address
+Read from the same address
+Verify that read data equals previously written data",write_read_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_read_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,"* ready_a is high but rd_data_a shows XXXX. seems like memory's data output isn't working right.
+* The memory has 1 cycle read delay, ready=1, valid = 1 but data comes next cycle."
+Port B Write Read,"Verify basic write and read operations on port B
+Write random data and address
+Read from the same address
+Verify that read data equals previously written data",write_read_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_read_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Write port A Read port B,"Ensure data consistency between all the ports
+Write random data to any address via port A
+Read the same address via port B
+The output should be the same as the input",write_a_read_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_a_read_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Write port B Read port A,"Ensure data consistency between all the ports
+Write random data to any address via port B
+Read the same address via port A
+The output should be the same input",write_b_read_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_b_read_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Write to the same address,"Ensure memory supports overwriting same address
+Write random data on the same address multiple times
+The stored data should change with each write operation",write_same_address,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_same_address_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Empty Memory Read,"Ensure the defaul output of an empty memory
+Read from empty address (never written) 
+Expect output to be zero",empty_mem_read,Done,Passed,rw +acc=rw +UVM_TESTNAME=empty_mem_read_test +UVM_VERBOSITY=UVM_LOW +UVM_NO_RELNOTES,
+Fill all the memory,"Ensure all addresses are accessible 
+Fill all memory locations with data
+Verify all addresses changed to the new value",fill_memory,Done,Passed,rw +acc=rw +UVM_TESTNAME=fill_memory_test +UVM_VERBOSITY=UVM_LOW +UVM_NO_RELNOTES,
+Reset Behavior,"Ensure reset functionality works well
+Test reading from memory immediately after reset
+The output should be zero or default value and verify that writes after reset behave as expected",reset_behavior,Done,Passed,rw +acc=rw +UVM_TESTNAME=reset_behavior_test +UVM_VERBOSITY=UVM_LOW +UVM_NO_RELNOTES,
+Simultaneous Write Different Ports,"Ensure write operation is independent for each port
+Write random data on different addresses from different ports at the same time
+Both succeed",simultaneous_write,Done,Passed,rw +acc=rw +UVM_TESTNAME=simultaneous_write_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Simultaneous Read Different Ports,"Ensure read operation is independent for each port 
+Read random data on different addresses from different ports at the same time
+Both get the right data",simultaneous_read,Done,Passed,rw +acc=rw +UVM_TESTNAME=simultaneous_read_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+"Simultaneous Write Port A Read Port B
+(same address)","Ensure the read value is the new one when port A write and port B read at the same time
+Write a random data to an address via port A
+Read the same address at the same time via port B
+Expected to get the new data",sim_write_a_read_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=sim_write_a_read_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+"Simultaneous Write Port B Read Port A
+(same address)","Ensure the read value is the new one when port B write and port A read at the same time
+Write a random data to an address via port B
+Read the same address at the same time via port A
+Expected to get the new data",sim_write_b_read_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=sim_write_b_read_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,"* When port B writes and port A reads same address simultaneously, port A gets old value instead of new one."
+Write Collision,"Verify the arbitration logic is valid when different ports write at the same adderess in the same time
+Write to the same address from different ports at the same time
+Check which one wins",write_collision,Done,Passed,rw +acc=rw +UVM_TESTNAME=write_collision_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Read Collision,"Ensure the consistency of memory when two ports read at the same adderess in the same time
+Read from the same address from different ports at the same time
+",read_collision,Done,Passed,rw +acc=rw +UVM_TESTNAME=read_collision_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Out of range access,"Verify out of range access handling in memory
+Access a random address out of memory range ( address > MEMORY_SIZE)
+Check if it doesn't corrupt data in other addresses",out_of_range_access,Done,Passed,rw +acc=rw +UVM_TESTNAME=out_of_range_access_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,"* Out of-range memory access is corrupting valid addresses.
+"
+Back to Back Writes Port A,"Ensure that memory can handle continuous write operations from port A
+Write random data on random addresses consecutive cycles via port A
+Verify the addresses changed to the new value",back_to_back_writes_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_writes_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Writes Port B,"Ensure that memory can handle continuous write operations from port B
+Write random data on random addresses consecutive cycles via port B
+Verify the addresses changed to the new value",back_to_back_writes_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_writes_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Writes,"Ensure that memory can handle continuous write operations from different ports
+Write random data on random addresses consecutive cycles via port B and port A
+Verify the addresses changed to the new value",back_to_back_writes,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_writes +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Reads Port A,"Ensure that memory can handle continuous read operations from from port A
+Read random data on random addresses consecutive cycles via port A
+It gets the right data",back_to_back_reads_a,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_reads_a_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Reads Port B,"Ensure that memory can handle continuous read operations from port B
+Read random data on random addresses consecutive cycles via port B
+It gets the right data",back_to_back_reads_b,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_reads_b_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Reads,"Ensure that memory can handle continuous read operations from different ports
+Read random data on random addresses consecutive cycles via port B and port A
+It gets the right data",back_to_back_reads,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_reads_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Back to Back Transactions,"Ensure that memory can handle continuous transactions from different ports
+Random operation read or write
+check if the operations were done successfully",back_to_back_transactions,Done,Passed,rw +acc=rw +UVM_TESTNAME=back_to_back_transactions_test +UVM_VERBOSITY=UVM_HIGH +NUM_TXN=10 +UVM_NO_RELNOTES,
+Address Boundaries,"Ensure all addresses accessible, no wraparound
+Write/read address MIN_SIZE, MAX_SIZE,",address_boundaries,Cacnelled,,,
+Delays,"Ensure delays won't affect different operations on the memory
+Write data to a random addess
+Wait for a few cycles 
+Read data from the same address
+Read data should match the written one ",delays,Cacnelled,,,
