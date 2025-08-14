@@ -2,6 +2,11 @@
 
 A comprehensive UVM (Universal Verification Methodology) testbench for verifying a dual-port memory design. This project implements a full verification environment with extensive test coverage, Register Abstraction Layer (RAL) integration, and advanced collision detection mechanisms.
 
+## 🌐 Try it Online
+**[Run this project on EDA Playground](https://edaplayground.com/x/Sh4t)**
+
+Experience the complete verification environment in your browser without any setup required!
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)

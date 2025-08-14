@@ -1,7 +1,7 @@
 class memory_transaction extends uvm_sequence_item;
     
-    rand bit [`ADDR_WIDTH-1:0] addr;        
-    rand bit [`DATA_WIDTH-1:0] data;     
+    rand logic [`ADDR_WIDTH-1:0] addr;        
+    rand logic [`DATA_WIDTH-1:0] data;     
     rand bit                   op;
     rand int delay;
     bit is_start = 0;

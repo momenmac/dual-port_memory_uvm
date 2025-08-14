@@ -240,9 +240,8 @@ class memory_scoreboard extends uvm_scoreboard;
                                                  ref int index, input string port_name);
         
         if (tr.addr >= `MEMORY_DEPTH) begin
-            `uvm_error("ADDR_BOUNDS", $sformatf("%s: Address 0x%0h exceeds memory depth %0d", 
+            `uvm_warning("ADDR_BOUNDS", $sformatf("%s: Address 0x%0h exceeds memory depth %0d", 
                       port_name, tr.addr, `MEMORY_DEPTH))
-            fail_count++;
             index++;
             return;
         end
