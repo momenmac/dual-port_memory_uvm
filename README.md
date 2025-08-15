@@ -18,8 +18,6 @@ Experience the complete verification environment in your browser without any set
 - [Setup and Usage](#setup-and-usage)
 - [Test Cases](#test-cases)
 - [RAL Integration](#ral-integration)
-- [Coverage](#coverage)
-- [Scripts](#scripts)
 
 ## 🎯 Overview
 
@@ -127,7 +125,6 @@ The testbench follows standard UVM methodology with the following key components
 ### Advanced Features
 - **Collision Detection Engine**: Real-time detection and resolution of read-write collisions
 - **Multi-Port Coordination**: Sophisticated arbitration modeling
-- **Comprehensive Coverage**: Functional and code coverage collection
 - **Flexible Configuration**: Parameterizable test environment
 
 ## 📊 Test Plan
@@ -163,7 +160,6 @@ The verification plan covers 26 comprehensive test scenarios focusing on:
 ### Test Results Summary
 - **Total Test Cases**: 26 (24 Passed, 2 Cancelled)
 - **Pass Rate**: 100% for executed tests
-- **Coverage**: Full functional coverage achieved
 - **Known Issues**: Documented in test plan with resolutions
 
 ## ✨ Key Features
@@ -185,12 +181,6 @@ The verification plan covers 26 comprehensive test scenarios focusing on:
 - **Dual Port Support**: Separate maps for each port
 - **Backdoor Access**: Direct memory access for verification
 - **Status Checking**: Transaction completion validation
-
-### 4. Comprehensive Coverage
-- **Functional Coverage**: All scenarios and corner cases
-- **Address Coverage**: Complete address space validation
-- **Data Pattern Coverage**: Various data patterns and values
-- **Timing Coverage**: Different access patterns and delays
 
 ## 🚀 Setup and Usage
 
@@ -296,41 +286,6 @@ ral_model.mem.peek(status, addr, backdoor_data);
 ral_model.mem.poke(status, addr, backdoor_data);
 ```
 
-## 📈 Coverage
-
-### Functional Coverage Points
-- **Address Coverage**: All memory locations accessed
-- **Data Pattern Coverage**: Various data patterns (all-0s, all-1s, walking patterns)
-- **Operation Coverage**: Read/write operation distribution  
-- **Port Coverage**: Both ports exercised equally
-- **Collision Coverage**: All collision scenarios covered
-- **Timing Coverage**: Various access timing patterns
-
-### Coverage Goals
-- **Address Coverage**: 100% of address space
-- **Operation Coverage**: Balanced read/write distribution
-- **Collision Coverage**: All defined collision scenarios
-- **Edge Case Coverage**: Boundary conditions and error cases
-
-## 📜 Scripts
-
-### Build Scripts
-- **compile.do**: Compilation script for simulator setup
-- **run_sim.do**: Simulation execution with test selection
-- **setup/**: Environment setup utilities
-
-### Usage Examples
-```bash
-# Compile all sources
-source scripts/compile.do
-
-# Run specific test
-source scripts/run_sim.do -test write_collision_test -txn 100
-
-# Run with coverage
-source scripts/run_sim.do -test memory_random_test -cov -txn 500
-```
-
 ## 🔍 Debug and Analysis
 
 ### Debug Features
@@ -351,12 +306,7 @@ This verification environment serves as a reference implementation for dual-port
 
 1. **Additional Test Scenarios**: Edge cases and corner conditions
 2. **Performance Benchmarking**: Throughput and latency characterization  
-3. **Coverage Enhancement**: Additional coverage points and cross-coverage
 4. **Debug Utilities**: Enhanced debugging and analysis tools
-
-## 📄 License
-
-This project is part of an academic/research verification framework. Please refer to the project maintainer for usage guidelines.
 
 ---
 
